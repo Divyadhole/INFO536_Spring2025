@@ -1,0 +1,82 @@
+---
+title: "Group 3"
+output: html_document
+date: "2025-02-28"
+---
+
+## Role 1: Group and prepare data by attack type.
+
+```{r}
+
+
+```
+
+## Role 2: Count the number of each attack type.
+
+```{r}
+# Grouping by primary attack type and summarizing attack counts
+attack_summary <- data %>%
+  group_by(attacktype1_txt) %>%
+  summarise(
+    total_attacks = n(),
+    avg_kills = mean(nkill, na.rm = TRUE),  # Average number of fatalities per attack type
+    avg_wounded = mean(nwound, na.rm = TRUE)  # Average number of wounded per attack type
+  ) %>%
+  arrange(desc(total_attacks))  # Sort in descending order
+
+# View summary
+print(attack_summary)
+
+
+```
+
+## Role 3: Visualize the most common attack types using a bar chart.
+
+### plot 1
+
+```{r}
+
+```
+
+### plot 2
+
+```{r}
+# Identify the most common attack type
+most_common_attack <- attack_summary %>% 
+  slice_max(order_by = total_attacks, n = 1) %>% 
+  pull(attacktype1_txt)
+
+# Create a new column for highlighting
+attack_summary <- attack_summary %>%
+  mutate(highlight = ifelse(attacktype1_txt == most_common_attack, "Most Common", "Other"))
+
+# Create ggplot
+p <- ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), 
+                                y = total_attacks, 
+                                fill = highlight, 
+                                text = paste("Attack Type:", attacktype1_txt, 
+                                             "<br>Total Attacks:", total_attacks,
+                                             "<br>Avg Kills:", round(avg_kills, 2),
+                                             "<br>Avg Wounded:", round(avg_wounded, 2)))) +
+  
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c("Most Common" = "red", "Other" = "gray")) +  
+  labs(title = " Most Common Attack Types",
+       x = "Attack Type",
+       y = "Total Attacks") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill = guide_legend(title = "Attack Type"))
+
+# Convert ggplot to an interactive plotly chart
+interactive_plot <- ggplotly(p, tooltip = "text")
+
+# Show the interactive plot
+interactive_plot
+```
+
+### plot 3
+
+```{r}
+
+```
