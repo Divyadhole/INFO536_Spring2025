@@ -7,6 +7,17 @@ date: "2025-02-28"
 ## Role 1: Group and prepare data by attack type.
 
 ```{r}
+library(dplyr)   
+library(tidyr)  
+library(ggplot2) 
+library(plotly)
+# Load a CSV file
+data <- read.csv("/Users/divyadhole/Downloads/globalterrorismdb_0718dist.csv", header = TRUE, sep = ",")
+head(data)  
+# Check for missing values
+sum(is.na(data))  # Total missing values
+colSums(is.na(data))  # Missing values per column
+colnames(data)
 
 
 ```
@@ -19,10 +30,10 @@ attack_summary <- data %>%
   group_by(attacktype1_txt) %>%
   summarise(
     total_attacks = n(),
-    avg_kills = mean(nkill, na.rm = TRUE),  # Average number of fatalities per attack type
-    avg_wounded = mean(nwound, na.rm = TRUE)  # Average number of wounded per attack type
+    avg_kills = mean(nkill, na.rm = TRUE),  
+    avg_wounded = mean(nwound, na.rm = TRUE)  
   ) %>%
-  arrange(desc(total_attacks))  # Sort in descending order
+  arrange(desc(total_attacks))
 
 # View summary
 print(attack_summary)
@@ -35,6 +46,14 @@ print(attack_summary)
 ### plot 1
 
 ```{r}
+library(ggplot2)
+
+ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), y = total_attacks, fill = attacktype1_txt)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Most Common Attack Types", x = "Attack Type", y = "Total Attacks") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  guides(fill = "none") 
 
 ```
 
@@ -78,5 +97,15 @@ interactive_plot
 ### plot 3
 
 ```{r}
+library(ggplot2)  # Load the ggplot2 package
+
+ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), y = total_attacks)) +
+  geom_bar(stat = "identity", fill = "lavender") +
+  labs(
+    title = "Most Common Attack Types",
+    x = "Attack Type",
+    y = "Total Attacks"
+  ) +
+  theme_minimal() +theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
