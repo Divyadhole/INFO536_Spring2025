@@ -4,20 +4,22 @@ output: html_document
 date: "2025-02-28"
 ---
 
-## Role 1: Group and prepare data by attack type.
+## Role 1: Group and prepare data by attack type.(Gowtham Theeda)
+
 
 ```{r}
+#installing required libraries 
 library(dplyr)   
 library(tidyr)  
 library(ggplot2) 
 library(plotly)
 # Load a CSV file
 data <- read.csv("/Users/divyadhole/Downloads/globalterrorismdb_0718dist.csv", header = TRUE, sep = ",")
-head(data)  
+head(data)  # displaying head of the data 
 # Check for missing values
 sum(is.na(data))  # Total missing values
 colSums(is.na(data))  # Missing values per column
-colnames(data)
+colnames(data)  # displaying coloum  data.
 
 
 ```
