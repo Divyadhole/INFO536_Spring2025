@@ -6,7 +6,6 @@ date: "2025-02-28"
 
 ## Role 1: Group and prepare data by attack type.(Gowtham Theeda)
 
-
 ```{r}
 #installing required libraries 
 library(dplyr)   
@@ -24,20 +23,24 @@ colnames(data)  # displaying coloum  data.
 
 ```
 
-## Role 2: Count the number of each attack type.
+## Role 2: Count the number of each attack type.(divya dhole)
 
 ```{r}
-# Grouping by primary attack type and summarizing attack counts
+# Grouping data by the first attack type column
 attack_summary <- data %>%
-  group_by(attacktype1_txt) %>%
+  group_by(attacktype1_txt) %>%  # Group data by attack type
+
+  # Summarize the number of attacks, average kills, and average wounded
   summarise(
-    total_attacks = n(),
-    avg_kills = mean(nkill, na.rm = TRUE),  
-    avg_wounded = mean(nwound, na.rm = TRUE)  
+    total_attacks = n(),                        # Count total number of attacks per type
+    avg_kills = mean(nkill, na.rm = TRUE),      # Calculate average number of people killed
+    avg_wounded = mean(nwound, na.rm = TRUE)    # Calculate average number of people wounded
   ) %>%
+  
+  # Sort the summarized data in descending order of total attacks
   arrange(desc(total_attacks))
 
-# View summary
+# Print the summary table
 print(attack_summary)
 
 
@@ -45,69 +48,79 @@ print(attack_summary)
 
 ## Role 3: Visualize the most common attack types using a bar chart.
 
-### plot 1
+### plot 1(manoj Reddy)
 
 ```{r}
-library(ggplot2)
+library(ggplot2)  # Load ggplot2 for plotting
 
-ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), y = total_attacks, fill = attacktype1_txt)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Most Common Attack Types", x = "Attack Type", y = "Total Attacks") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  guides(fill = "none") 
+ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), y = total_attacks, fill = attacktype1_txt)) + 
+  geom_bar(stat = "identity") +  # Create bars with height = total_attacks
+  geom_text(aes(label = total_attacks), vjust = -0.3, size = 3) +  # Add labels above bars
+  labs(title = "Most Common Attack Types", x = "Attack Type", y = "Total Attacks") +  # Add axis and chart titles
+  theme_minimal() +  # Use a clean minimal theme
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels
+  guides(fill = "none")  # Remove fill legend since it's redundant
 
 ```
 
-### plot 2
+### plot 2(Divya Dhole)
 
 ```{r}
-# Identify the most common attack type
-most_common_attack <- attack_summary %>% 
-  slice_max(order_by = total_attacks, n = 1) %>% 
-  pull(attacktype1_txt)
+# Get the attack type with the highest number of attacks
+most_common_attack <- attack_summary %>%  
+  slice_max(order_by = total_attacks, n = 1) %>%  # Get the top row
+  pull(attacktype1_txt)  # Extract the attack type as a string
 
-# Create a new column for highlighting
+# Create a new column to highlight the most common attack type
 attack_summary <- attack_summary %>%
-  mutate(highlight = ifelse(attacktype1_txt == most_common_attack, "Most Common", "Other"))
+  mutate(highlight = ifelse(attacktype1_txt == most_common_attack, "Most Common", "Other"))  # Label most common attack
 
-# Create ggplot
-p <- ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), 
-                                y = total_attacks, 
-                                fill = highlight, 
-                                text = paste("Attack Type:", attacktype1_txt, 
-                                             "<br>Total Attacks:", total_attacks,
-                                             "<br>Avg Kills:", round(avg_kills, 2),
-                                             "<br>Avg Wounded:", round(avg_wounded, 2)))) +
-  
-  geom_bar(stat = "identity") +
-  scale_fill_manual(values = c("Most Common" = "red", "Other" = "gray")) +  
-  labs(title = " Most Common Attack Types",
-       x = "Attack Type",
-       y = "Total Attacks") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  guides(fill = guide_legend(title = "Attack Type"))
+# Build the ggplot
+p <- ggplot(attack_summary, aes(
+    x = reorder(attacktype1_txt, -total_attacks),  # Sort bars by total_attacks descending
+    y = total_attacks,                             # Set y-axis to total attack count
+    fill = highlight,                              # Color bars based on highlight status
+    text = paste(                                   # Tooltip text for interactive plot
+      "Attack Type:", attacktype1_txt,
+      "<br>Total Attacks:", total_attacks,
+      "<br>Avg Kills:", round(avg_kills, 2),
+      "<br>Avg Wounded:", round(avg_wounded, 2)
+    )
+  )) +
+  geom_bar(stat = "identity") +  # Create static bar plot
+  geom_text(aes(label = total_attacks), vjust = -0.3, size = 3) +  # Add value labels
+  scale_fill_manual(values = c("Most Common" = "red", "Other" = "gray")) +  # Set custom fill colors
+  labs(
+    title = " Most Common Attack Types",  # Chart title
+    x = "Attack Type",                    # X-axis label
+    y = "Total Attacks"                   # Y-axis label
+  ) +
+  theme_minimal() +  # Minimal theme
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate labels
+  guides(fill = guide_legend(title = "Attack Type"))  # Add legend title
 
-# Convert ggplot to an interactive plotly chart
-interactive_plot <- ggplotly(p, tooltip = "text")
+# Convert the ggplot to an interactive plot using plotly
+interactive_plot <- ggplotly(p, tooltip = "text")  # Pass the tooltip text
 
-# Show the interactive plot
+# Display the interactive plot
 interactive_plot
+
 ```
 
-### plot 3
+### plot 3(Gowtham Theeda)
 
 ```{r}
-library(ggplot2)  # Load the ggplot2 package
+library(ggplot2)  # Load ggplot2 package
 
 ggplot(attack_summary, aes(x = reorder(attacktype1_txt, -total_attacks), y = total_attacks)) +
-  geom_bar(stat = "identity", fill = "lavender") +
+  geom_bar(stat = "identity", fill = "lavender") +  # Draw bars in lavender color
+  geom_text(aes(label = total_attacks), vjust = -0.3, size = 3) +  # Add number annotations above each bar
   labs(
-    title = "Most Common Attack Types",
-    x = "Attack Type",
-    y = "Total Attacks"
+    title = "Most Common Attack Types",  # Chart title
+    x = "Attack Type",                   # X-axis label
+    y = "Total Attacks"                  # Y-axis label
   ) +
-  theme_minimal() +theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme_minimal() +  # Clean plot style
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Tilt x-axis labels for readability
 
 ```
